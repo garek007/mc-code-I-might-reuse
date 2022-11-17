@@ -1,0 +1,50 @@
+<script runat="server">
+Platform.Load("Core","1.1.1");
+try{
+</script>
+%%[
+
+Set @updateType = RequestParameter('updateType')
+If Empty(@updateType) Then
+    ]%%
+    Sorry the update type is empty
+    %%[
+else
+
+  Set @data = LookupRows('GNJ_Exited',@updateType,1,'NeedsUpdate',1)
+  if RowCount(@data) > 0 Then
+    for @i = 1 to RowCount(@data) do
+    Set @row = Row(@data,@i)
+    Set @leadid = Field(@row,'LeadOrContactId')
+    Set @cmid = Field(@row,'CampaignMemberID')
+
+    
+    if @updateType == 'OptedOut' Then
+      Set @updateLead = UpdateSingleSalesforceObject('Lead',@leadid,'Currently_Enrolled_In_MC_Journey__c',0)
+      Set @status = 'Exited - Unsubscribed'
+    else /*must be Applied*/
+      Set @status = 'Exited - Applied'
+      /*We don't update the lead here because it was converted and converted leads are locked for editing*/
+    endif
+    
+    Set @updateCM = UpdateSingleSalesforceObject('CampaignMember',@cmid,'Status',@status)
+
+    ]%%
+    %%=v(@cmid)=%%
+
+
+    %%[
+    next @i
+  endif
+endif
+
+
+]%%
+%%=v(@updateLead)=%%<br>
+%%=v(@updateCM)=%%<br><br>
+
+<script runat="server">
+}catch(e){
+ Write(Stringify(e));
+}
+</script>
