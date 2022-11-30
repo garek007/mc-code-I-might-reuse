@@ -1,0 +1,10 @@
+    // Create a stream
+    $opts = array(
+      'http'=>array(
+        'method'=>"GET",
+        'header' => "Authorization: Basic whateverwhateverxxwhateversomevalue="               
+      )
+    );
+
+    $context = stream_context_create($opts);
+    $returnCode = file_get_contents($url,false,$context);
